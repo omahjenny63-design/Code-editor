@@ -1,40 +1,69 @@
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ᴄᴏᴅᴇʀ ᴠ𝟷</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #1e1e1e; color: white; font-family: sans-serif; overflow: hidden; }
+        #editor-container { height: calc(100vh - 60px); width: 100%; }
+        .toolbar { height: 60px; background: #252526; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-top: 1px solid #333; position: fixed; bottom: 0; width: 100%; box-sizing: border-box; }
+        .btn { background: #0088cc; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .status { font-size: 12px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <div id="editor-container"></div>
+    <div class="toolbar">
+        <div class="status" id="lang-label">ʟᴀɴɢᴜᴀɢᴇ: ᴘʏᴛʜᴏɴ</div>
+        <button class="btn" onclick="copyToClipboard()">ᴄᴏᴘʏ ᴄᴏᴅᴇ</button>
+    </div>
 
-    // 1. ᴇxᴛʀᴀᴄᴛ ᴅᴀᴛᴀ ꜰʀᴏᴍ ᴜʀʟ
-    const params = new URLSearchParams(window.location.search);
-    const currentLang = params.get('lang') || 'python';
-    
-    // 2. ᴅᴇᴄᴏᴅᴇ ᴛʜᴇ ᴄᴏᴅᴇ (ᴛʜɪs is ᴛʜᴇ ɪᴍᴘᴏʀᴛᴀɴᴛ ᴘᴀʀᴛ!)
-    let codeFromBot = params.get('code');
-    if (codeFromBot) {
-        codeFromBot = decodeURIComponent(codeFromBot);
-    } else {
-        codeFromBot = "// ɴᴏ ᴄᴏᴅᴇ ʀᴇᴄᴇɪᴠᴇᴅ. ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴘʀᴏᴍᴘᴛ ᴛᴏ ᴛʜᴇ ʙᴏᴛ.";
-    }
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
 
-    document.getElementById('lang-label').innerText = "ʟᴀɴɢᴜᴀɢᴇ: " + currentLang.toUpperCase();
+        // ᴇxᴛʀᴀᴄᴛ ᴀɴᴅ ᴅᴇᴄᴏᴅᴇ
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang') || 'python';
+        let code = urlParams.get('code');
 
-    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' } });
-    require(['vs/editor/editor.main'], function () {
-        window.editor = monaco.editor.create(document.getElementById('editor-container'), {
-            value: codeFromBot,
-            language: currentLang,
-            theme: 'vs-dark',
-            automaticLayout: true,
-            fontSize: 14,
-            minimap: { enabled: false }
+        if (code) {
+            try {
+                code = decodeURIComponent(code);
+            } catch (e) {
+                console.error("Decoding failed", e);
+            }
+        } else {
+            code = "# ɴᴏ ᴄᴏᴅᴇ ʀᴇᴄᴇɪᴠᴇᴅ ꜰʀᴏᴍ ʙᴏᴛ.\n# ᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ.";
+        }
+
+        document.getElementById('lang-label').innerText = "ʟᴀɴɢᴜᴀɢᴇ: " + lang.toUpperCase();
+
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            window.editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: code,
+                language: lang === 'python' ? 'python' : 'javascript',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                minimap: { enabled: false },
+                lineNumbers: "on",
+                scrollBeyondLastLine: false
+            });
         });
-    });
 
-    function copyToClipboard() {
-        const code = window.editor.getValue();
-        navigator.clipboard.writeText(code).then(() => {
-            tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert("ᴄᴏᴅᴇ ᴄᴏᴘɪᴇᴅ ᴛᴏ ᴄʟɪᴘʙᴏᴀʀᴅ!");
-        });
-    }
-</script>
-
+        function copyToClipboard() {
+            const val = window.editor.getValue();
+            navigator.clipboard.writeText(val).then(() => {
+                tg.HapticFeedback.notificationOccurred('success');
+                tg.showAlert("ᴄᴏᴅᴇ ᴄᴏᴘɪᴇᴅ!");
+            });
+        }
+    </script>
+</body>
+</html>
